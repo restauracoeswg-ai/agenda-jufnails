@@ -833,7 +833,7 @@ async function renderTimeSlots() {
 
   try {
     const [bookingsData, blocksData] = await Promise.all([
-      fbGet('agendamentos', currentUser?.idToken).catch(() => null),
+      fbGet('agendamentos_index', currentUser?.idToken).catch(() => null),
       fbGet('blocks', currentUser?.idToken).catch(() => null)
     ]);
     const bookings  = bookingsData ? Object.values(bookingsData) : [];
@@ -891,7 +891,8 @@ async function finalizeBooking() {
 
   showLoading('Salvando agendamento...');
   try {
-    await fbPush('agendamentos', booking, currentUser.idToken);
+    const bookingRef = await fbPush(`agendamentos/${currentUser.uid}`, booking, currentUser.idToken);
+    await fbPush('agendamentos_index', {...booking, _ref: bookingRef.name}, currentUser.idToken);
     hideLoading();
   } catch(e) {
     hideLoading();
@@ -922,8 +923,8 @@ function resetBookingForm() {
 async function updateFABBadge() {
   if (!currentUser || currentUser.isAdmin) return;
   try {
-    const data = await fbGet('agendamentos', currentUser.idToken);
-    const count = data ? Object.values(data).filter(b => b.clientUid === currentUser.uid).length : 0;
+    const data = await fbGet(`agendamentos/${currentUser.uid}`, currentUser.idToken);
+    const count = data ? Object.keys(data).length : 0;
     const badge = document.getElementById('fab-badge');
     if (badge) { badge.textContent = count; badge.style.display = count > 0 ? 'flex' : 'none'; }
   } catch(e) {}
@@ -936,11 +937,10 @@ async function renderClientAppointments() {
   if (!currentUser) return;
   showLoading('Carregando agendamentos...');
   try {
-    const data = await fbGet('agendamentos', currentUser.idToken);
+    const data = await fbGet(`agendamentos/${currentUser.uid}`, currentUser.idToken);
     hideLoading();
     const bookings = data
       ? Object.entries(data).map(([k,v]) => ({...v, _id:k}))
-          .filter(b => b.clientUid === currentUser.uid)
           .sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt))
       : [];
 
@@ -967,7 +967,7 @@ async function renderClientAppointments() {
 async function renderAdminBookings() {
   showLoading('Carregando agendamentos...');
   try {
-    const data = await fbGet('agendamentos', currentUser.idToken);
+    const data = await fbGet('agendamentos_index', currentUser.idToken);
     hideLoading();
 
     let bookings = data
@@ -1021,7 +1021,7 @@ async function renderAdminBookings() {
 async function updateStatus(id, status) {
   showLoading('Atualizando...');
   try {
-    await fbUpdate(`agendamentos/${id}`, { status }, currentUser.idToken);
+    await fbUpdate(`agendamentos_index/${id}`, { status }, currentUser.idToken);
     hideLoading();
     showToast(`Status: ${status}`, 'success');
     renderAdminBookings();
@@ -1044,7 +1044,7 @@ function statusBadge(s) {
 // ═══════════════════════════════════════════════════
 async function renderCashflow() {
   try {
-    const data = await fbGet('agendamentos', currentUser.idToken);
+    const data = await fbGet('agendamentos_index', currentUser.idToken);
     const bookings = data ? Object.values(data) : [];
     const confirmed  = bookings.filter(b => b.status==='Confirmado');
     const pending    = bookings.filter(b => b.status==='A Confirmar');
