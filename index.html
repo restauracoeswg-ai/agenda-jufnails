@@ -501,7 +501,7 @@
 // ═══════════════════════════════════════════════════
 const FB_DB_URL  = 'https://app-agenda-ju-fnails-default-rtdb.firebaseio.com';
 const ADMIN_EMAIL = 'restauracoeswg@gmail.com';
-let FB_API_KEY   = localStorage.getItem('fnails_api_key') || '';
+const FB_API_KEY = 'AIzaSyB9iN02HIXXc-S8KGW6xXfBmYC2Wi5xhyc';
 
 // ═══════════════════════════════════════════════════
 // SERVIÇOS PADRÃO
@@ -598,7 +598,7 @@ async function fbDelete(path, token) {
 // ═══════════════════════════════════════════════════
 // API KEY SETUP
 // ═══════════════════════════════════════════════════
-function saveApiKey() {
+function saveApiKey() { showScreen("screen-login"); return; //
   const key = document.getElementById('apikey-input').value.trim();
   if (key.length < 20) { alert('API Key inválida. Verifique e tente novamente.'); return; }
   FB_API_KEY = key;
@@ -1258,7 +1258,7 @@ document.getElementById('apikey-input').addEventListener('keydown', e => { if(e.
 // ═══════════════════════════════════════════════════
 // STARTUP
 // ═══════════════════════════════════════════════════
-if (!FB_API_KEY) {
+if (false) {
   openModal('modal-apikey');
 } else {
   showScreen('screen-login');
