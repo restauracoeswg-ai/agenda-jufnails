@@ -3,1266 +3,286 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Agenda Studio Juliana FNAILS</title>
+<title>Studio Juliana FNAILS — Agenda Online</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Nunito:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Nunito:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <style>
-  :root {
-    --pink:#d63384; --pink-light:#ffe6f0; --pink-mid:#f8b4d4;
-    --pink-dark:#b5206a; --white:#fff; --gray:#6c757d;
-    --gray-light:#f8f9fa; --text:#3d2030;
-    --shadow:0 4px 20px rgba(214,51,132,.12);
-    --shadow-sm:0 2px 8px rgba(214,51,132,.08);
-    --radius:16px; --radius-sm:10px;
-  }
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:'Nunito',sans-serif;background:linear-gradient(135deg,#fff0f7 0%,#fff 50%,#ffe6f0 100%);min-height:100vh;color:var(--text)}
+:root{
+  --pink:#d63384;--pink-light:#ffe6f0;--pink-mid:#f8b4d4;
+  --pink-dark:#b5206a;--pink-glow:rgba(214,51,132,.12);
+  --white:#fff;--gray:#6c757d;--gray-light:#f8f9fa;
+  --text:#3d2030;--border:#f0d0e0;
+  --radius:16px;--radius-sm:10px;
+  --shadow:0 4px 20px rgba(214,51,132,.12);
+  --shadow-sm:0 2px 10px rgba(214,51,132,.08);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Nunito',sans-serif;background:#fff9fc;color:var(--text);min-height:100vh}
+.screen{display:none;min-height:100vh}.screen.active{display:block}
 
-  .screen{display:none;min-height:100vh}
-  .screen.active{display:block}
+/* LOADING */
+.loading-overlay{position:fixed;inset:0;background:rgba(255,255,255,.9);z-index:999;display:none;align-items:center;justify-content:center;flex-direction:column;gap:14px}
+.loading-overlay.active{display:flex}
+.spin{width:44px;height:44px;border:4px solid var(--pink-light);border-top-color:var(--pink);border-radius:50%;animation:spin .7s linear infinite}
+.spin-sm{display:inline-block;width:15px;height:15px;border:3px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-overlay p{color:var(--pink);font-weight:600;font-size:14px}
 
-  /* ── AUTH ── */
-  .auth-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background:linear-gradient(160deg,#ffe6f0 0%,#fff 60%,#ffd6eb 100%)}
-  .auth-card{background:#fff;border-radius:24px;box-shadow:0 8px 40px rgba(214,51,132,.15);padding:44px 36px;width:100%;max-width:420px;position:relative;overflow:hidden}
-  .auth-card::before{content:'';position:absolute;top:-40px;right:-40px;width:150px;height:150px;background:var(--pink-light);border-radius:50%;z-index:0}
-  .auth-card::after{content:'';position:absolute;bottom:-30px;left:-30px;width:100px;height:100px;background:var(--pink-light);border-radius:50%;z-index:0}
-  .auth-card>*{position:relative;z-index:1}
-  .logo-wrap{text-align:center;margin-bottom:28px}
-  .logo-icon{font-size:40px;display:block;margin-bottom:8px}
-  .logo-title{font-family:'Playfair Display',serif;font-size:21px;color:var(--pink);font-weight:600;line-height:1.2}
-  .logo-sub{font-size:12px;color:var(--gray);letter-spacing:2px;text-transform:uppercase;margin-top:4px}
-  .form-group{margin-bottom:16px}
-  .form-group label{display:block;font-size:13px;font-weight:600;color:var(--pink-dark);margin-bottom:5px}
-  .input-wrap{position:relative}
-  .form-group input{width:100%;padding:13px 44px 13px 16px;border:2px solid var(--pink-light);border-radius:var(--radius-sm);font-family:'Nunito',sans-serif;font-size:15px;color:var(--text);background:#fff;transition:border-color .2s,box-shadow .2s;outline:none}
-  .form-group input:focus{border-color:var(--pink);box-shadow:0 0 0 3px rgba(214,51,132,.1)}
-  .eye-btn{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:18px;color:var(--gray);padding:4px;z-index:2}
-  .btn-primary{width:100%;padding:14px;background:linear-gradient(135deg,var(--pink),var(--pink-dark));color:#fff;border:none;border-radius:var(--radius-sm);font-family:'Nunito',sans-serif;font-size:16px;font-weight:700;cursor:pointer;transition:transform .2s,box-shadow .2s;box-shadow:0 4px 15px rgba(214,51,132,.35);letter-spacing:.5px}
-  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(214,51,132,.45)}
-  .btn-primary:disabled{opacity:.6;cursor:not-allowed;transform:none}
-  .btn-secondary{width:100%;padding:12px;background:var(--pink-light);color:var(--pink);border:2px solid var(--pink-mid);border-radius:var(--radius-sm);font-family:'Nunito',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;margin-top:10px}
-  .btn-secondary:hover{background:var(--pink-mid)}
-  .btn-ghost{width:100%;padding:11px;background:transparent;color:var(--gray);border:2px solid #e9e9e9;border-radius:var(--radius-sm);font-family:'Nunito',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;margin-top:8px}
-  .btn-ghost:hover{border-color:var(--pink-mid);color:var(--pink)}
-  .auth-error{color:#c0392b;font-size:13px;margin-top:8px;display:none;text-align:center;padding:8px;background:#fdf0f0;border-radius:8px}
-  .divider{display:flex;align-items:center;gap:12px;margin:16px 0;color:var(--gray);font-size:12px}
-  .divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--pink-light)}
+/* HERO */
+.hero{background:linear-gradient(160deg,#fff0f7 0%,#fff 50%,#ffe6f0 100%);padding:24px 16px 16px;text-align:center;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
+.hero-logo{font-size:34px;display:block;margin-bottom:5px;cursor:pointer}
+.hero-title{font-family:'Playfair Display',serif;font-size:22px;color:var(--pink);font-weight:700;line-height:1.2}
+.hero-sub{font-size:11px;color:var(--gray);letter-spacing:2px;text-transform:uppercase;margin-top:3px}
+.hero-actions{display:flex;justify-content:center;gap:8px;margin-top:12px;flex-wrap:wrap}
+.btn-hero-login{padding:8px 18px;background:var(--pink);color:#fff;border:none;border-radius:30px;font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s}
+.btn-hero-login:hover{background:var(--pink-dark)}
+.btn-hero-meus{padding:8px 16px;background:var(--pink-light);color:var(--pink);border:1.5px solid var(--pink-mid);border-radius:30px;font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;cursor:pointer}
+.btn-hero-logout{padding:7px 14px;background:transparent;color:var(--gray);border:1.5px solid var(--border);border-radius:30px;font-family:'Nunito',sans-serif;font-size:12px;font-weight:600;cursor:pointer}
+.user-chip{display:inline-flex;align-items:center;gap:5px;background:var(--pink-light);border:1.5px solid var(--pink-mid);border-radius:30px;padding:6px 13px;font-size:12px;font-weight:700;color:var(--pink-dark)}
 
-  /* ── HEADER ── */
-  .app-header{background:linear-gradient(135deg,var(--pink),var(--pink-dark));color:#fff;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 4px 20px rgba(214,51,132,.3);position:sticky;top:0;z-index:100}
-  .app-header-title{font-family:'Playfair Display',serif;font-size:17px;font-weight:600}
-  .app-header-sub{font-size:11px;opacity:.85;letter-spacing:1.5px;text-transform:uppercase}
-  .btn-logout{background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.4);color:#fff;border-radius:8px;padding:7px 14px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Nunito',sans-serif;transition:background .2s}
-  .btn-logout:hover{background:rgba(255,255,255,.3)}
-  .btn-back{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.4);color:#fff;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Nunito',sans-serif}
+/* SECTION TABS (MÃOS/PÉS) */
+.section-tabs{display:flex;background:#fff;border-bottom:2px solid var(--border);position:sticky;top:110px;z-index:90}
+.section-tab{flex:1;padding:13px 10px;text-align:center;font-size:15px;font-weight:700;cursor:pointer;border:none;background:transparent;font-family:'Nunito',sans-serif;color:var(--gray);transition:all .2s;border-bottom:3px solid transparent;margin-bottom:-2px}
+.section-tab.active{color:var(--pink);border-bottom-color:var(--pink)}
 
-  /* ── SERVICES ── */
-  .services-container{max-width:800px;margin:0 auto;padding:24px 16px 120px}
-  .section-title{font-family:'Playfair Display',serif;font-size:20px;color:var(--pink);margin:28px 0 14px;padding-bottom:8px;border-bottom:2px solid var(--pink-light);display:flex;align-items:center;gap:8px}
-  .subsection-title{font-size:14px;font-weight:700;color:var(--pink-dark);text-transform:uppercase;letter-spacing:1px;margin:16px 0 10px;display:flex;align-items:center;gap:6px}
+/* SERVICES PAGE */
+.services-page{max-width:720px;margin:0 auto;padding:0 0 220px}
+.section-panel{display:none}.section-panel.active{display:block}
 
-  /* SERVICE ITEM — checkbox fix: pointer-events on label, not just div */
-  .service-item{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow-sm);padding:14px 16px;display:flex;align-items:center;gap:14px;margin-bottom:10px;transition:box-shadow .2s,transform .2s;border:2px solid transparent;cursor:pointer;user-select:none;-webkit-user-select:none}
-  .service-item:hover{box-shadow:var(--shadow);transform:translateY(-1px)}
-  .service-item.selected{border-color:var(--pink);background:var(--pink-light)}
-  .img-thumb{width:60px;height:60px;border-radius:12px;flex-shrink:0;background:var(--pink-light);display:flex;align-items:center;justify-content:center;font-size:26px;overflow:hidden;pointer-events:none}
-  .img-thumb img{width:100%;height:100%;object-fit:cover}
-  .service-info{flex:1;min-width:0;pointer-events:none}
-  .service-name{font-weight:700;font-size:15px;color:var(--text)}
-  .service-desc{font-size:12px;color:var(--gray);margin-top:2px}
-  .service-meta{display:flex;gap:10px;margin-top:5px;flex-wrap:wrap}
-  .service-price{font-size:13px;font-weight:700;color:var(--pink)}
-  .service-time{font-size:12px;color:var(--gray);background:var(--gray-light);padding:2px 8px;border-radius:20px}
-  /* Checkbox — visible and clickable, but toggling handled by parent onclick */
-  .service-check{width:22px;height:22px;accent-color:var(--pink);cursor:pointer;flex-shrink:0;pointer-events:none}
+/* ACCORDION */
+.accordion-item{border-bottom:1px solid var(--border)}
+.accordion-header{width:100%;display:flex;align-items:center;justify-content:space-between;padding:16px;background:#fff;border:none;cursor:pointer;font-family:'Nunito',sans-serif;text-align:left;transition:background .15s;gap:10px}
+.accordion-header:active{background:var(--pink-light)}
+.accordion-header.open{background:#fff8fb}
+.acc-icon{font-size:24px;flex-shrink:0}
+.acc-info{flex:1}
+.acc-name{font-family:'Playfair Display',serif;font-size:16px;font-weight:600;color:var(--text);line-height:1.2}
+.acc-meta{font-size:11px;color:var(--gray);margin-top:2px}
+.acc-right{display:flex;align-items:center;gap:8px}
+.acc-arrow{font-size:16px;color:var(--pink-mid);transition:transform .25s}
+.accordion-header.open .acc-arrow{transform:rotate(180deg)}
+.sel-badge{background:var(--pink);color:#fff;border-radius:50%;width:20px;height:20px;font-size:11px;font-weight:700;display:inline-flex;align-items:center;justify-content:center}
+.accordion-body{display:none;background:#fdf5f9;border-top:1px solid var(--pink-light)}
+.accordion-body.open{display:block}
 
-  /* ── BOOKING ── */
-  .booking-card{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);padding:24px;margin-top:28px}
-  .booking-card h3{font-family:'Playfair Display',serif;color:var(--pink);font-size:18px;margin-bottom:16px}
-  .flatpickr-input{width:100%;padding:12px 16px;border:2px solid var(--pink-light);border-radius:var(--radius-sm);font-family:'Nunito',sans-serif;font-size:15px;color:var(--text);outline:none;cursor:pointer;background:#fff;margin-bottom:14px}
-  .flatpickr-input:focus{border-color:var(--pink)}
-  .time-slots{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px}
-  .time-slot{padding:8px 16px;border:2px solid var(--pink-mid);border-radius:30px;font-size:14px;font-weight:600;color:var(--pink);cursor:pointer;transition:all .2s;background:#fff}
-  .time-slot:hover{background:var(--pink-light)}
-  .time-slot.selected{background:var(--pink);color:#fff;border-color:var(--pink)}
-  .time-slot.disabled{opacity:.4;cursor:not-allowed;background:var(--gray-light);border-color:#ddd;color:var(--gray)}
-  .total-bar{background:linear-gradient(135deg,var(--pink),var(--pink-dark));color:#fff;border-radius:var(--radius);padding:16px 20px;display:flex;align-items:center;justify-content:space-between;margin-top:20px;box-shadow:var(--shadow)}
-  .total-label{font-size:14px;opacity:.9}
-  .total-value{font-size:22px;font-weight:700;font-family:'Playfair Display',serif}
-  .btn-confirm{width:100%;padding:16px;background:linear-gradient(135deg,var(--pink),var(--pink-dark));color:#fff;border:none;border-radius:var(--radius-sm);font-family:'Nunito',sans-serif;font-size:17px;font-weight:700;cursor:pointer;transition:transform .2s,box-shadow .2s;box-shadow:0 4px 15px rgba(214,51,132,.35);margin-top:16px}
-  .btn-confirm:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(214,51,132,.45)}
+/* SUBSECTION LABEL */
+.sub-label{padding:10px 16px 4px;font-size:10px;font-weight:700;color:var(--pink-dark);text-transform:uppercase;letter-spacing:.8px}
 
-  /* ── APPOINTMENTS ── */
-  .appointments-container{max-width:900px;margin:0 auto;padding:24px 16px 100px}
-  .table-wrap{overflow-x:auto;border-radius:var(--radius);box-shadow:var(--shadow-sm)}
-  table{width:100%;border-collapse:collapse;background:#fff;font-size:14px}
-  thead tr{background:linear-gradient(135deg,var(--pink),var(--pink-dark));color:#fff}
-  thead th{padding:14px 16px;text-align:left;font-weight:600;white-space:nowrap}
-  tbody tr{border-bottom:1px solid var(--pink-light);transition:background .15s}
-  tbody tr:hover{background:var(--pink-light)}
-  tbody td{padding:13px 16px;vertical-align:middle}
-  .badge{display:inline-block;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;white-space:nowrap}
-  .badge-orange{background:#fff3cd;color:#b8620c}
-  .badge-green{background:#d4edda;color:#155724}
-  .badge-red{background:#f8d7da;color:#721c24}
-  .badge-blue{background:#d1ecf1;color:#0c5460}
-  .badge-purple{background:#e9d8fd;color:#553c9a}
+/* VARIANT ITEM */
+.variant-item{display:flex;align-items:center;padding:13px 16px;border-bottom:1px solid var(--pink-light);cursor:pointer;transition:background .15s;gap:12px;user-select:none;-webkit-user-select:none}
+.variant-item:last-child{border-bottom:none}
+.variant-item:active,.variant-item.selected{background:rgba(214,51,132,.06)}
+.v-check{width:22px;height:22px;border-radius:6px;border:2px solid var(--pink-mid);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px;color:transparent;transition:all .2s}
+.variant-item.selected .v-check{background:var(--pink);border-color:var(--pink);color:#fff}
+.v-info{flex:1}
+.v-name{font-size:14px;font-weight:600;color:var(--text);line-height:1.3}
+.v-sub{font-size:11px;color:var(--gray);margin-top:1px}
+.v-manu{font-size:11px;color:var(--pink);margin-top:2px;font-weight:600}
+.v-price{font-size:15px;font-weight:700;color:var(--pink);white-space:nowrap;flex-shrink:0}
 
-  /* ── FAB ── */
-  .fab{position:fixed;bottom:24px;right:24px;width:56px;height:56px;background:linear-gradient(135deg,var(--pink),var(--pink-dark));border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;color:#fff;box-shadow:0 6px 20px rgba(214,51,132,.4);cursor:pointer;z-index:200;transition:transform .2s,box-shadow .2s;border:none}
-  .fab:hover{transform:scale(1.1)}
-  .fab-badge{position:absolute;top:-4px;right:-4px;background:#ff4444;color:#fff;border-radius:50%;width:20px;height:20px;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center}
+/* ADICIONAL ITEM */
+.adicional-item{display:flex;align-items:center;padding:12px 16px;border-bottom:1px solid var(--pink-light);cursor:pointer;transition:background .15s;gap:12px;user-select:none;-webkit-user-select:none}
+.adicional-item:last-child{border-bottom:none}
+.adicional-item:active,.adicional-item.selected{background:rgba(214,51,132,.06)}
+.add-plus{font-size:22px;color:var(--pink-mid);flex-shrink:0;transition:transform .25s;line-height:1}
+.adicional-item.selected .add-plus{color:var(--pink);transform:rotate(45deg)}
+.add-name-wrap{flex:1}
+.add-name{font-size:14px;font-weight:600;color:var(--text)}
+.add-desc{font-size:11px;color:var(--gray);margin-top:1px}
+.add-price{font-size:14px;font-weight:700;color:var(--pink);flex-shrink:0}
 
-  /* ── ADMIN ── */
-  .admin-container{max-width:1100px;margin:0 auto;padding:24px 16px 80px}
-  .admin-tabs{display:flex;gap:8px;margin-bottom:24px;flex-wrap:wrap}
-  .admin-tab{padding:10px 20px;border-radius:30px;font-size:14px;font-weight:600;cursor:pointer;border:2px solid var(--pink-mid);background:#fff;color:var(--pink);transition:all .2s;font-family:'Nunito',sans-serif}
-  .admin-tab.active{background:var(--pink);color:#fff;border-color:var(--pink)}
-  .admin-panel{display:none}
-  .admin-panel.active{display:block}
-  .filter-bar{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
-  .filter-bar select,.filter-bar input{padding:9px 14px;border:2px solid var(--pink-light);border-radius:var(--radius-sm);font-family:'Nunito',sans-serif;font-size:14px;color:var(--text);outline:none;background:#fff}
-  .filter-bar select:focus,.filter-bar input:focus{border-color:var(--pink)}
-  .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:16px;margin-bottom:24px}
-  .stat-card{background:#fff;border-radius:var(--radius);padding:20px;box-shadow:var(--shadow-sm);text-align:center;border-top:4px solid var(--pink)}
-  .stat-value{font-size:24px;font-weight:700;color:var(--pink);font-family:'Playfair Display',serif}
-  .stat-label{font-size:12px;color:var(--gray);margin-top:4px}
+/* BOOKING CARD */
+.booking-card{position:fixed;bottom:0;left:0;right:0;z-index:200;background:#fff;border-top:2px solid var(--pink-light);box-shadow:0 -4px 24px rgba(214,51,132,.15);padding:12px 16px}
+.booking-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;gap:8px}
+.booking-total{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--pink)}
+.booking-meta{font-size:11px;color:var(--gray)}
+.booking-inputs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.b-input{flex:1;min-width:130px;padding:10px 12px;border:2px solid var(--pink-light);border-radius:var(--radius-sm);font-family:'Nunito',sans-serif;font-size:13px;color:var(--text);outline:none;background:#fff;cursor:pointer;min-height:42px}
+.b-input:focus{border-color:var(--pink)}
+.time-slots-wrap{flex-basis:100%;width:100%}
+.time-slots{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:8px}
+.time-slot{padding:7px 14px;border:2px solid var(--pink-mid);border-radius:30px;font-size:13px;font-weight:600;color:var(--pink);cursor:pointer;transition:all .2s;background:#fff}
+.time-slot:active,.time-slot.sel{background:var(--pink);color:#fff;border-color:var(--pink)}
+.time-slot.dis{opacity:.4;cursor:not-allowed;background:var(--gray-light);border-color:#ddd;color:var(--gray)}
+.btn-confirm{width:100%;padding:14px;background:linear-gradient(135deg,var(--pink),var(--pink-dark));color:#fff;border:none;border-radius:var(--radius-sm);font-family:'Nunito',sans-serif;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 15px rgba(214,51,132,.35);transition:transform .2s}
+.btn-confirm:active{transform:scale(.98)}
 
-  /* ── SERVICE EDITOR ── */
-  .service-editor-item{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow-sm);padding:16px;margin-bottom:12px;display:grid;grid-template-columns:70px 1fr auto;gap:14px;align-items:center}
-  .service-editor-img{width:70px;height:70px;border-radius:10px;background:var(--pink-light);font-size:28px;display:flex;align-items:center;justify-content:center;cursor:pointer;border:2px dashed var(--pink-mid);overflow:hidden}
-  .service-editor-img img{width:100%;height:100%;object-fit:cover}
-  .service-editor-fields{display:flex;flex-direction:column;gap:8px}
-  .editor-input{padding:8px 12px;border:2px solid var(--pink-light);border-radius:8px;font-family:'Nunito',sans-serif;font-size:14px;color:var(--text);outline:none;background:#fff;width:100%}
-  .editor-input:focus{border-color:var(--pink)}
-  .editor-row{display:flex;gap:8px}
-  .btn-small{padding:7px 14px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:none;font-family:'Nunito',sans-serif;transition:opacity .2s}
-  .btn-small:hover{opacity:.85}
-  .btn-save{background:#28a745;color:#fff}
-  .btn-delete{background:#dc3545;color:#fff}
-  .btn-add{background:var(--pink);color:#fff}
+/* AUTH MODAL (bottom sheet) */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(50,10,30,.55);z-index:500;align-items:flex-end;justify-content:center}
+.modal-overlay.active{display:flex}
+.modal-sheet{background:#fff;border-radius:24px 24px 0 0;width:100%;max-width:500px;padding:24px 20px 36px;max-height:90vh;overflow-y:auto;animation:slideUp .3s ease}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal-handle{width:38px;height:4px;background:var(--pink-light);border-radius:4px;margin:0 auto 18px}
+.modal-title{font-family:'Playfair Display',serif;font-size:19px;color:var(--pink);margin-bottom:4px;font-weight:700}
+.modal-sub{font-size:13px;color:var(--gray);margin-bottom:18px}
+.form-group{margin-bottom:14px}
+.form-group label{display:block;font-size:11px;font-weight:700;color:var(--pink-dark);margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px}
+.input-wrap{position:relative}
+.form-group input{width:100%;padding:12px 42px 12px 13px;border:2px solid var(--pink-light);border-radius:var(--radius-sm);font-family:'Nunito',sans-serif;font-size:15px;color:var(--text);background:#fff;outline:none;transition:border-color .2s}
+.form-group input:focus{border-color:var(--pink);box-shadow:0 0 0 3px var(--pink-glow)}
+.eye-btn{position:absolute;right:11px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:17px;color:var(--gray);z-index:2}
+.btn-primary{width:100%;padding:13px;background:linear-gradient(135deg,var(--pink),var(--pink-dark));color:#fff;border:none;border-radius:var(--radius-sm);font-family:'Nunito',sans-serif;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 15px rgba(214,51,132,.35);transition:transform .15s}
+.btn-primary:active{transform:scale(.98)}
+.btn-primary:disabled{opacity:.6;cursor:not-allowed;transform:none}
+.btn-secondary{width:100%;padding:12px;background:var(--pink-light);color:var(--pink);border:2px solid var(--pink-mid);border-radius:var(--radius-sm);font-family:'Nunito',sans-serif;font-size:14px;font-weight:700;cursor:pointer;margin-top:10px}
+.btn-link{width:100%;padding:10px;background:transparent;color:var(--gray);border:none;font-family:'Nunito',sans-serif;font-size:13px;cursor:pointer;margin-top:5px}
+.auth-error{color:#c0392b;font-size:13px;margin-top:6px;display:none;text-align:center;padding:8px;background:#fdf0f0;border-radius:8px}
+.divider{display:flex;align-items:center;gap:10px;margin:14px 0;color:var(--gray);font-size:11px}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--pink-light)}
 
-  /* Action buttons in table */
-  .action-btn{padding:5px 10px;border-radius:6px;border:none;font-size:11px;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif;transition:opacity .2s;white-space:nowrap}
-  .action-btn:hover{opacity:.85}
-  .action-confirmar{background:#28a745;color:#fff}
-  .action-cancelar{background:#dc3545;color:#fff}
-  .action-remarcado{background:#6f42c1;color:#fff}
+/* POLICY SHEET */
+.policy-sheet{background:#fff;border-radius:24px 24px 0 0;width:100%;max-width:500px;padding:24px 20px 36px;max-height:85vh;overflow-y:auto;animation:slideUp .3s ease}
+.policy-item{display:flex;gap:11px;margin-bottom:13px}
+.policy-icon{font-size:20px;flex-shrink:0}
+.policy-text{font-size:13px;color:var(--text);line-height:1.6}
+.policy-text strong{color:var(--pink-dark)}
+.modal-btns{display:flex;gap:10px;margin-top:16px}
+.modal-btns button{flex:1}
 
-  /* ── BLOCKS ── */
-  .blocked-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
-  .blocked-tag{background:#ffe0e0;border:1px solid #ffb3b3;border-radius:20px;padding:5px 12px;font-size:13px;color:#c0392b;display:flex;align-items:center;gap:6px}
-  .blocked-tag button{background:none;border:none;cursor:pointer;color:#c0392b;font-size:16px;line-height:1}
+/* TOAST */
+.toast{position:fixed;bottom:210px;right:14px;background:#3d2030;color:#fff;padding:11px 16px;border-radius:10px;font-size:13px;font-weight:600;z-index:700;transform:translateY(20px);opacity:0;transition:all .3s;max-width:260px;border-left:3px solid var(--pink)}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.success{background:#1a4731;border-left-color:#28a745}
+.toast.error{background:#4a1010;border-left-color:#dc3545}
 
-  /* ── MODAL ── */
-  .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:300;align-items:center;justify-content:center;padding:20px}
-  .modal-overlay.active{display:flex}
-  .modal{background:#fff;border-radius:20px;box-shadow:0 20px 60px rgba(0,0,0,.2);padding:32px;max-width:520px;width:100%;position:relative;max-height:90vh;overflow-y:auto}
-  .modal h3{font-family:'Playfair Display',serif;color:var(--pink);font-size:20px;margin-bottom:16px}
-  .modal p{font-size:14px;color:var(--text);line-height:1.6;margin-bottom:8px}
-  .modal-close{position:absolute;top:16px;right:16px;background:none;border:none;font-size:22px;cursor:pointer;color:var(--gray)}
-  .modal-btns{display:flex;gap:10px;margin-top:20px}
-  .modal-btns button{flex:1}
+/* APP HEADER */
+.app-header{background:linear-gradient(135deg,var(--pink),var(--pink-dark));color:#fff;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.app-header-title{font-family:'Playfair Display',serif;font-size:17px;font-weight:600}
+.app-header-sub{font-size:10px;opacity:.85;letter-spacing:1px;text-transform:uppercase}
+.btn-back{background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.35);color:#fff;border-radius:8px;padding:7px 12px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Nunito',sans-serif}
+.btn-exit{background:transparent;border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:8px;padding:7px 12px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Nunito',sans-serif}
 
-  /* ── API KEY MODAL ── */
-  .apikey-box{background:var(--pink-light);border-radius:12px;padding:16px;margin-bottom:16px;font-size:14px;line-height:1.7}
-  .apikey-box strong{color:var(--pink-dark)}
-  .apikey-box code{background:#fff;padding:2px 8px;border-radius:6px;font-size:13px;border:1px solid var(--pink-mid)}
-  .config-input{width:100%;padding:12px 16px;border:2px solid var(--pink-light);border-radius:10px;font-family:'Nunito',sans-serif;font-size:14px;color:var(--text);outline:none;margin-top:6px}
-  .config-input:focus{border-color:var(--pink)}
+/* APPOINTMENTS */
+.appt-wrap{max-width:720px;margin:0 auto;padding:20px 16px 80px}
+.booking-row{background:#fff;border-radius:var(--radius);box-shadow:var(--shadow-sm);padding:15px;margin-bottom:12px;border-left:4px solid var(--pink-mid)}
+.br-services{font-size:14px;font-weight:600;color:var(--text);margin-bottom:7px;line-height:1.4}
+.br-meta{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.pill{padding:4px 11px;border-radius:20px;font-size:12px;font-weight:700}
+.pill-pink{background:var(--pink-light);color:var(--pink)}
+.pill-gray{background:var(--gray-light);color:var(--gray)}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
+.badge-orange{background:#fff3cd;color:#b8620c}
+.badge-green{background:#d4edda;color:#155724}
+.badge-red{background:#f8d7da;color:#721c24}
+.badge-purple{background:#e9d8fd;color:#553c9a}
 
-  /* ── TOAST ── */
-  .toast{position:fixed;bottom:90px;right:24px;background:var(--text);color:#fff;padding:12px 20px;border-radius:10px;font-size:14px;font-weight:600;z-index:400;transform:translateY(20px);opacity:0;transition:all .3s;max-width:300px}
-  .toast.show{transform:translateY(0);opacity:1}
-  .toast.success{background:#28a745}
-  .toast.error{background:#dc3545}
+/* ADMIN */
+.admin-wrap{max-width:960px;margin:0 auto;padding:18px 14px 80px}
+.admin-tabs{display:flex;gap:6px;margin-bottom:18px;flex-wrap:wrap}
+.admin-tab{padding:8px 16px;border-radius:30px;font-size:13px;font-weight:600;cursor:pointer;border:2px solid var(--pink-mid);background:#fff;color:var(--pink);transition:all .2s;font-family:'Nunito',sans-serif}
+.admin-tab.active{background:var(--pink);color:#fff;border-color:var(--pink)}
+.admin-panel{display:none}.admin-panel.active{display:block}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:18px}
+.stat-card{background:#fff;border-radius:var(--radius);padding:14px;box-shadow:var(--shadow-sm);text-align:center;border-top:3px solid var(--pink)}
+.stat-value{font-size:20px;font-weight:700;color:var(--pink);font-family:'Playfair Display',serif}
+.stat-label{font-size:10px;color:var(--gray);margin-top:3px;text-transform:uppercase;letter-spacing:.3px}
+.filter-bar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.filter-bar select,.filter-bar input{padding:8px 11px;border:2px solid var(--pink-light);border-radius:var(--radius-sm);font-family:'Nunito',sans-serif;font-size:13px;color:var(--text);outline:none;background:#fff}
+.filter-bar input{flex:1;min-width:120px}
+.table-wrap{overflow-x:auto;border-radius:var(--radius);box-shadow:var(--shadow-sm)}
+table{width:100%;border-collapse:collapse;background:#fff;font-size:13px}
+thead tr{background:linear-gradient(135deg,var(--pink),var(--pink-dark));color:#fff}
+thead th{padding:11px 12px;text-align:left;font-weight:600;font-size:10px;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap}
+tbody tr{border-bottom:1px solid var(--pink-light);transition:background .1s}
+tbody tr:hover{background:var(--pink-light)}
+tbody td{padding:11px 12px;vertical-align:middle}
+.action-btn{padding:4px 8px;border-radius:6px;border:none;font-size:11px;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif;white-space:nowrap}
+.act-green{background:#d4edda;color:#155724}
+.act-red{background:#f8d7da;color:#721c24}
+.act-purple{background:#e9d8fd;color:#553c9a}
+.blocked-list{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}
+.blocked-tag{background:#ffe0e0;border:1px solid #ffb3b3;border-radius:20px;padding:4px 11px;font-size:12px;color:#c0392b;display:flex;align-items:center;gap:5px}
+.blocked-tag button{background:none;border:none;cursor:pointer;color:#c0392b;font-size:14px;line-height:1}
 
-  /* ── LOADING ── */
-  .loading-overlay{position:fixed;inset:0;background:rgba(255,255,255,.85);z-index:500;display:none;align-items:center;justify-content:center;flex-direction:column;gap:12px}
-  .loading-overlay.active{display:flex}
-  .spin-big{width:48px;height:48px;border:5px solid var(--pink-light);border-top-color:var(--pink);border-radius:50%;animation:spin .8s linear infinite}
-  .loading-overlay p{color:var(--pink);font-weight:600;font-size:15px}
-  @keyframes spin{to{transform:rotate(360deg)}}
-  .loading-spinner{display:inline-block;width:18px;height:18px;border:3px solid rgba(255,255,255,.3);border-radius:50%;border-top-color:#fff;animation:spin .8s linear infinite;margin-right:8px;vertical-align:middle}
+/* EMPTY */
+.empty-state{text-align:center;padding:50px 20px;color:var(--gray)}
+.empty-state .icon{font-size:44px;margin-bottom:10px}
 
-  /* ── MISC ── */
-  .empty-state{text-align:center;padding:60px 20px;color:var(--gray)}
-  .empty-state .icon{font-size:48px;margin-bottom:12px}
-  .ornament{text-align:center;color:var(--pink-mid);font-size:18px;margin:8px 0;letter-spacing:4px}
+/* FLATPICKR */
+.flatpickr-calendar{border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid var(--pink-light)}
+.flatpickr-day.selected,.flatpickr-day.selected:hover{background:var(--pink);border-color:var(--pink)}
+.flatpickr-months .flatpickr-month{background:var(--pink);color:#fff}
+span.flatpickr-weekday{background:var(--pink-light);color:var(--pink-dark);font-weight:700}
 
-  /* ── FLATPICKR OVERRIDES ── */
-  .flatpickr-calendar{border-radius:var(--radius);box-shadow:var(--shadow);border:1px solid var(--pink-light)}
-  .flatpickr-day.selected,.flatpickr-day.selected:hover{background:var(--pink);border-color:var(--pink)}
-  .flatpickr-day:hover{background:var(--pink-light)}
-  .flatpickr-months .flatpickr-month{background:var(--pink);color:#fff;border-radius:var(--radius) var(--radius) 0 0}
-  .flatpickr-current-month .flatpickr-monthDropdown-months{background:var(--pink)}
-  span.flatpickr-weekday{background:var(--pink-light);color:var(--pink-dark);font-weight:700}
-
-  @media(max-width:600px){
-    .auth-card{padding:32px 20px}
-    .service-editor-item{grid-template-columns:60px 1fr}
-    .service-editor-item .editor-actions{grid-column:1/-1;display:flex;justify-content:flex-end}
-    .admin-tabs{gap:6px}
-    .admin-tab{padding:8px 12px;font-size:12px}
-    .stats-grid{grid-template-columns:repeat(2,1fr)}
-    .action-btn{padding:4px 7px;font-size:10px}
-  }
+@media(max-width:600px){
+  .hero{padding:18px 14px 12px}
+  .hero-title{font-size:19px}
+  .section-tabs{top:102px}
+  .booking-card{padding:10px 12px}
+  .stats-grid{grid-template-columns:repeat(2,1fr)}
+  .admin-tab{padding:7px 11px;font-size:12px}
+}
 </style>
 </head>
 <body>
 
-<!-- LOADING -->
 <div class="loading-overlay" id="loading-overlay">
-  <div class="spin-big"></div>
+  <div class="spin"></div>
   <p id="loading-text">Aguarde...</p>
 </div>
 
-<!-- ════════════ API KEY MODAL (one-time) ════════════ -->
-<div class="modal-overlay" id="modal-apikey">
-  <div class="modal">
-    <h3>🔑 Configuração Inicial</h3>
-    <div class="apikey-box">
-      <strong>Onde encontrar a chave:</strong><br>
-      No Firebase Console → ⚙️ Configurações do projeto → <strong>Geral</strong> → role até <strong>"Seus apps"</strong> → clique em <strong>"Web API Key"</strong> ou <strong>"apiKey"</strong>
-    </div>
-    <label style="font-size:13px;font-weight:600;color:var(--pink-dark);display:block;margin-bottom:4px">Web API Key do Firebase</label>
-    <input class="config-input" id="apikey-input" placeholder="Cole sua API Key aqui...">
-    <div class="modal-btns" style="margin-top:16px">
-      <button class="btn-primary" onclick="saveApiKey()">Salvar e Continuar 🚀</button>
+<!-- ══════════════════════════════════
+     HOME — SERVIÇOS
+══════════════════════════════════ -->
+<div id="screen-home" class="screen">
+
+  <div class="hero">
+    <span class="hero-logo" id="hero-logo">💅</span>
+    <div class="hero-title">Studio Juliana FNAILS</div>
+    <div class="hero-sub">Escolha seu serviço e agende</div>
+    <div class="hero-actions" id="hero-actions">
+      <button class="btn-hero-login" onclick="abrirModalLogin('auth-login')">Entrar / Cadastrar</button>
+      <button class="btn-hero-logout" onclick="abrirModalLogin('auth-admin')" style="font-size:11px;padding:6px 12px">👑 Admin</button>
     </div>
   </div>
-</div>
 
-<!-- ════════════ LOGIN (clientes) ════════════ -->
-<div id="screen-login" class="screen">
-  <div class="auth-wrap">
-    <div class="auth-card">
-      <div class="logo-wrap">
-        <span class="logo-icon">💅</span>
-        <div class="logo-title">Studio Juliana FNAILS</div>
-        <div class="logo-sub">Agenda Online</div>
-      </div>
-      <div class="form-group">
-        <label>E-mail</label>
-        <div class="input-wrap">
-          <input type="email" id="login-email" placeholder="seu@email.com" autocomplete="email">
-        </div>
-      </div>
-      <div class="form-group">
-        <label>Senha</label>
-        <div class="input-wrap">
-          <input type="password" id="login-pass" placeholder="Sua senha" autocomplete="current-password">
-          <button class="eye-btn" onclick="togglePass('login-pass',this)">👁️</button>
-        </div>
-      </div>
-      <div class="auth-error" id="login-error"></div>
-      <button class="btn-primary" id="btn-login" onclick="doLogin()">Entrar</button>
-      <button class="btn-secondary" onclick="showScreen('screen-register')">Criar conta</button>
-      <div class="divider">ou</div>
-      <button class="btn-ghost" onclick="showScreen('screen-admin-login')">👑 Área do Administrador</button>
-    </div>
+  <div class="section-tabs">
+    <button class="section-tab active" onclick="switchSection('maos',this)">🤝 Mãos</button>
+    <button class="section-tab" onclick="switchSection('pes',this)">🦶 Pés</button>
   </div>
-</div>
 
-<!-- ════════════ CADASTRO ════════════ -->
-<div id="screen-register" class="screen">
-  <div class="auth-wrap">
-    <div class="auth-card">
-      <div class="logo-wrap">
-        <span class="logo-icon">✨</span>
-        <div class="logo-title">Criar Conta</div>
-        <div class="logo-sub">Studio Juliana FNAILS</div>
-      </div>
-      <div class="form-group">
-        <label>Nome Completo</label>
-        <div class="input-wrap">
-          <input type="text" id="reg-name" placeholder="Seu nome completo">
-        </div>
-      </div>
-      <div class="form-group">
-        <label>E-mail</label>
-        <div class="input-wrap">
-          <input type="email" id="reg-email" placeholder="seu@email.com" autocomplete="email">
-        </div>
-      </div>
-      <div class="form-group">
-        <label>Telefone (11 dígitos)</label>
-        <div class="input-wrap">
-          <input type="tel" id="reg-phone" placeholder="DDD + número" maxlength="11">
-        </div>
-      </div>
-      <div class="form-group">
-        <label>Senha (mínimo 8 caracteres)</label>
-        <div class="input-wrap">
-          <input type="password" id="reg-pass" placeholder="Crie uma senha forte" autocomplete="new-password">
-          <button class="eye-btn" onclick="togglePass('reg-pass',this)">👁️</button>
-        </div>
-      </div>
-      <div class="auth-error" id="reg-error"></div>
-      <button class="btn-primary" id="btn-register" onclick="doRegister()">Criar Conta</button>
-      <button class="btn-secondary" onclick="showScreen('screen-login')">Já tenho conta</button>
-    </div>
-  </div>
-</div>
+  <div class="services-page">
 
-<!-- ════════════ LOGIN ADMIN ════════════ -->
-<div id="screen-admin-login" class="screen">
-  <div class="auth-wrap">
-    <div class="auth-card">
-      <div class="logo-wrap">
-        <span class="logo-icon">👑</span>
-        <div class="logo-title">Painel Admin</div>
-        <div class="logo-sub">Studio Juliana FNAILS</div>
-      </div>
-      <div class="form-group">
-        <label>E-mail do Administrador</label>
-        <div class="input-wrap">
-          <input type="email" id="admin-email" placeholder="admin@email.com" autocomplete="email">
-        </div>
-      </div>
-      <div class="form-group">
-        <label>Senha</label>
-        <div class="input-wrap">
-          <input type="password" id="admin-pass" placeholder="Senha do administrador" autocomplete="current-password">
-          <button class="eye-btn" onclick="togglePass('admin-pass',this)">👁️</button>
-        </div>
-      </div>
-      <div class="auth-error" id="admin-error"></div>
-      <button class="btn-primary" id="btn-admin-login" onclick="doAdminLogin()">Entrar como Admin</button>
-      <button class="btn-secondary" onclick="showScreen('screen-login')">← Voltar</button>
-    </div>
-  </div>
-</div>
+    <!-- ═══ MÃOS ═══ -->
+    <div id="section-maos" class="section-panel active">
 
-<!-- ════════════ SERVIÇOS (clientes) ════════════ -->
-<div id="screen-services" class="screen">
-  <div class="app-header">
-    <div>
-      <div class="app-header-title">Agenda Studio Juliana FNAILS</div>
-      <div class="app-header-sub" id="header-greeting">Olá!</div>
-    </div>
-    <button class="btn-logout" onclick="doLogout()">Sair</button>
-  </div>
-  <div class="services-container">
-    <div class="ornament">✦ ✦ ✦</div>
-
-    <div class="section-title">🤝 Mãos</div>
-    <div class="subsection-title">⭐ Serviços Principais</div>
-    <div id="list-maos-principais"></div>
-    <div class="subsection-title">➕ Adicionais</div>
-    <div id="list-maos-adicionais"></div>
-
-    <div class="section-title">🦶 Pés</div>
-    <div class="subsection-title">⭐ Serviços Principais</div>
-    <div id="list-pes-principais"></div>
-    <div class="subsection-title">🔧 Manutenção</div>
-    <div id="list-pes-manutencao"></div>
-    <div class="subsection-title">➕ Adicionais</div>
-    <div id="list-pes-adicionais"></div>
-
-    <div class="booking-card">
-      <h3>📅 Escolha a Data e Horário</h3>
-      <label style="font-size:13px;font-weight:600;color:var(--pink-dark);margin-bottom:6px;display:block">Data</label>
-      <input type="text" id="datepicker" class="flatpickr-input" placeholder="Selecione uma data" readonly>
-      <label style="font-size:13px;font-weight:600;color:var(--pink-dark);margin-bottom:6px;display:block;margin-top:4px">Horário disponível</label>
-      <div class="time-slots" id="time-slots"></div>
-      <div class="total-bar">
-        <div>
-          <div class="total-label">Total selecionado</div>
-          <div class="total-value" id="total-value">R$ 0,00</div>
-        </div>
-        <div style="font-size:28px">💅</div>
-      </div>
-      <button class="btn-confirm" onclick="confirmBooking()">Confirmar Agendamento 🌸</button>
-    </div>
-  </div>
-  <button class="fab" onclick="showScreen('screen-appointments')" title="Meus Agendamentos">
-    📋<span class="fab-badge" id="fab-badge" style="display:none">0</span>
-  </button>
-</div>
-
-<!-- ════════════ MEUS AGENDAMENTOS ════════════ -->
-<div id="screen-appointments" class="screen">
-  <div class="app-header">
-    <button class="btn-back" onclick="showScreen('screen-services')">← Voltar</button>
-    <div><div class="app-header-title">Meus Agendamentos</div></div>
-    <button class="btn-logout" onclick="doLogout()">Sair</button>
-  </div>
-  <div class="appointments-container">
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>Serviços</th><th>Total</th><th>Status</th><th>Data/Hora</th></tr></thead>
-        <tbody id="client-appointments-body"></tbody>
-      </table>
-    </div>
-    <div id="client-appointments-empty" class="empty-state" style="display:none">
-      <div class="icon">📋</div><p>Nenhum agendamento ainda.</p>
-    </div>
-  </div>
-</div>
-
-<!-- ════════════ PAINEL ADMIN ════════════ -->
-<div id="screen-admin" class="screen">
-  <div class="app-header">
-    <div>
-      <div class="app-header-title">👑 Painel Administrador</div>
-      <div class="app-header-sub">Studio Juliana FNAILS</div>
-    </div>
-    <button class="btn-logout" onclick="doLogout()">Sair</button>
-  </div>
-  <div class="admin-container">
-    <div class="admin-tabs">
-      <button class="admin-tab active" onclick="switchAdminTab('tab-bookings',this)">📋 Agendamentos</button>
-      <button class="admin-tab" onclick="switchAdminTab('tab-cashflow',this)">💰 Caixa</button>
-      <button class="admin-tab" onclick="switchAdminTab('tab-services',this)">✏️ Serviços</button>
-      <button class="admin-tab" onclick="switchAdminTab('tab-blocks',this)">🔒 Horários</button>
-    </div>
-
-    <!-- AGENDAMENTOS -->
-    <div id="tab-bookings" class="admin-panel active">
-      <div class="filter-bar">
-        <select id="filter-period" onchange="renderAdminBookings()">
-          <option value="all">Todos</option>
-          <option value="day">Hoje</option>
-          <option value="week">Esta Semana</option>
-          <option value="month">Este Mês</option>
-        </select>
-        <input type="text" id="filter-search" placeholder="Buscar cliente..." oninput="renderAdminBookings()" style="flex:1;min-width:140px">
-      </div>
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>#</th><th>Cliente</th><th>Telefone</th><th>Serviços</th><th>Data/Hora</th><th>Total</th><th>Status</th><th>Ações</th></tr></thead>
-          <tbody id="admin-bookings-body"></tbody>
-        </table>
-      </div>
-      <div id="admin-bookings-empty" class="empty-state" style="display:none">
-        <div class="icon">📭</div><p>Nenhum agendamento encontrado.</p>
-      </div>
-    </div>
-
-    <!-- CAIXA -->
-    <div id="tab-cashflow" class="admin-panel">
-      <div class="stats-grid" id="cashflow-stats"></div>
-    </div>
-
-    <!-- SERVIÇOS -->
-    <div id="tab-services" class="admin-panel">
-      <div id="admin-services-editor"></div>
-    </div>
-
-    <!-- BLOQUEIOS -->
-    <div id="tab-blocks" class="admin-panel">
-      <div class="booking-card">
-        <h3>🔒 Bloquear / Liberar Horários</h3>
-        <p style="font-size:13px;color:var(--gray);margin-bottom:14px">Bloqueie datas e horários para que não apareçam para os clientes.</p>
-        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end">
-          <div>
-            <label style="font-size:13px;font-weight:600;color:var(--pink-dark);display:block;margin-bottom:4px">Data</label>
-            <input type="text" id="block-datepicker" class="flatpickr-input" placeholder="Selecione data" style="width:180px;margin-bottom:0" readonly>
+      <!-- ALONGAMENTO F1 -->
+      <div class="accordion-item">
+        <button class="accordion-header" id="hdr-f1" onclick="toggleAcc('body-f1','hdr-f1')">
+          <span class="acc-icon">💅</span>
+          <div class="acc-info">
+            <div class="acc-name">Alongamento Molde F1</div>
+            <div class="acc-meta">⏱ 1h30 a 2h30 · a partir de R$ 100</div>
           </div>
-          <div>
-            <label style="font-size:13px;font-weight:600;color:var(--pink-dark);display:block;margin-bottom:4px">Horário</label>
-            <input type="text" id="block-time" placeholder="ex: 10:00" style="padding:12px 14px;border:2px solid var(--pink-light);border-radius:10px;font-size:14px;font-family:Nunito,sans-serif;outline:none;width:120px">
+          <div class="acc-right">
+            <span class="sel-badge" id="badge-f1" style="display:none">0</span>
+            <span class="acc-arrow">▾</span>
           </div>
-          <button class="btn-small btn-add" onclick="addBlock()">Bloquear</button>
-        </div>
-        <div class="blocked-list" id="blocked-list"></div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- ════════════ MODAL POLÍTICA ════════════ -->
-<div class="modal-overlay" id="modal-policy">
-  <div class="modal">
-    <button class="modal-close" onclick="closeModal('modal-policy')">✕</button>
-    <h3>📋 Política de Agendamento</h3>
-    <p>💳 <strong>Pagamento antecipado:</strong> 50% do valor deve ser efetuado no ato do agendamento para confirmar sua reserva.</p>
-    <p>🔁 <strong>Reagendamento:</strong> Cada cliente tem direito a <strong>1 remarque</strong> sem custo. A partir do segundo é cobrado <strong>R$15,00</strong>.</p>
-    <p>⏰ <strong>Tolerância de atrasos:</strong> <strong>10 minutos</strong>. Após esse prazo o horário é cancelado sem possibilidade de conclusão no mesmo dia.</p>
-    <p>📅 <strong>Horário garantido:</strong> A data e hora agendadas são um compromisso. Imprevistos? Avise com antecedência!</p>
-    <p style="margin-top:12px;font-size:13px;color:var(--pink);font-weight:600">Ao confirmar, você será redirecionada ao WhatsApp para enviar a mensagem de agendamento. 🌸</p>
-    <div class="modal-btns">
-      <button class="btn-secondary" onclick="closeModal('modal-policy')" style="width:auto;padding:12px 20px">Cancelar</button>
-      <button class="btn-primary" onclick="finalizeBooking()" style="width:auto;padding:12px 20px">Entendi e Confirmar ✅</button>
-    </div>
-  </div>
-</div>
-
-<div class="toast" id="toast"></div>
-
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/pt.js"></script>
-<script>
-// ═══════════════════════════════════════════════════
-// CONFIGURAÇÃO FIREBASE
-// ═══════════════════════════════════════════════════
-const FB_DB_URL  = 'https://app-agenda-ju-fnails-default-rtdb.firebaseio.com';
-const ADMIN_EMAIL = 'restauracoeswg@gmail.com';
-const FB_API_KEY = 'AIzaSyB9iN02HIXXc-S8KGW6xXfBmYC2Wi5xhyc';
-
-// ═══════════════════════════════════════════════════
-// SERVIÇOS PADRÃO
-// ═══════════════════════════════════════════════════
-const DEFAULT_SERVICES = [
-  {id:'s1', category:'maos-principais', name:'Alongamento com Molde F1',     desc:'Técnica que une rapidez, perfeição e naturalidade. Manutenção: 15 a 30 dias.',                               price:130, time:'1h30–2h30', emoji:'💅'},
-  {id:'s2', category:'maos-principais', name:'Banho de Gel',                 desc:'Camada de gel sobre a unha natural — proteção e brilho sem extensão. Manutenção: 15/30 dias.',               price:80,  time:'50min–1h30', emoji:'✨'},
-  {id:'s3', category:'maos-principais', name:'Esmaltação Simples',            desc:'Esmaltação em gel com secagem instantânea e durabilidade de 10 a 15 dias.',                                   price:40,  time:'',           emoji:'🎨'},
-  {id:'s4', category:'maos-principais', name:'Esmaltação com Decoração',      desc:'Esmaltação em gel com decoração personalizada. Durabilidade de 10 a 15 dias.',                               price:50,  time:'',           emoji:'🌸'},
-  {id:'s5', category:'maos-adicionais', name:'Reposição de Unhas',            desc:'Reposição de unhas quebradas ou danificadas.',                                                                  price:5,   time:'', emoji:'🔧'},
-  {id:'s6', category:'maos-adicionais', name:'Troca de Formato',              desc:'Alteração do formato (oval, quadrada, stiletto, ballerina…)',                                                   price:10,  time:'', emoji:'✂️'},
-  {id:'s7', category:'maos-adicionais', name:'Cutilagem',                     desc:'Remoção e cuidado das cutículas com produtos especiais.',                                                       price:10,  time:'', emoji:'💆'},
-  {id:'s8', category:'maos-adicionais', name:'Charms / Adesivos',             desc:'Aplicação de charms, pedras ou adesivos decorativos.',                                                         price:5,   time:'', emoji:'💎'},
-  {id:'s9', category:'maos-adicionais', name:'Remoção',                       desc:'Remoção segura de gel, acrigel ou esmalte anterior.',                                                          price:50,  time:'', emoji:'🗑️'},
-  {id:'s10',category:'maos-adicionais', name:'Unhas Extra Longas',            desc:'Adicional para unhas acima do comprimento padrão.',                                                            price:7,   time:'', emoji:'📏'},
-  {id:'s11',category:'pes-principais',  name:'Reconstrução Pé — Aplicação Gel',      desc:'Reconstrução das unhas dos pés com esmaltação em gel.',            price:50, time:'', emoji:'🦶'},
-  {id:'s12',category:'pes-principais',  name:'Reconstrução Pé — Aplicação Decoração',desc:'Reconstrução das unhas dos pés com decoração artística.',           price:60, time:'', emoji:'🌺'},
-  {id:'s13',category:'pes-manutencao',  name:'Manutenção Gel',                desc:'Manutenção da reconstrução dos pés com esmaltação em gel.',                                                    price:35,  time:'', emoji:'⚙️'},
-  {id:'s14',category:'pes-manutencao',  name:'Manutenção Decoração',          desc:'Manutenção da reconstrução dos pés com decoração.',                                                            price:45,  time:'', emoji:'🎭'},
-  {id:'s15',category:'pes-adicionais',  name:'Reposição de Unhas (Pé)',       desc:'Reposição de unhas dos pés danificadas.',                                                                      price:5,   time:'', emoji:'🔧'},
-  {id:'s16',category:'pes-adicionais',  name:'Cutilagem (Pé)',                desc:'Cuidado das cutículas dos pés.',                                                                               price:10,  time:'', emoji:'💆'},
-  {id:'s17',category:'pes-adicionais',  name:'Charms / Adesivos (Pé)',        desc:'Decoração com charms e adesivos.',                                                                             price:5,   time:'', emoji:'💎'},
-  {id:'s18',category:'pes-adicionais',  name:'Remoção (Pé)',                  desc:'Remoção segura de gel ou esmalte nos pés.',                                                                    price:50,  time:'', emoji:'🗑️'},
-];
-
-// ═══════════════════════════════════════════════════
-// ESTADO DO APP
-// ═══════════════════════════════════════════════════
-let currentUser = null; // { uid, email, name, phone, idToken, isAdmin }
-let allServices  = [];
-let selectedDate = null;
-let selectedTime = null;
-let fpInstance   = null;
-let fpBlock      = null;
-
-// ═══════════════════════════════════════════════════
-// FIREBASE AUTH REST API
-// ═══════════════════════════════════════════════════
-async function fbSignUp(email, password) {
-  const r = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${FB_API_KEY}`, {
-    method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({ email, password, returnSecureToken:true })
-  });
-  const d = await r.json();
-  if (!r.ok) throw new Error(d.error?.message || 'Erro ao criar conta');
-  return d; // { idToken, localId, email }
-}
-
-async function fbSignIn(email, password) {
-  const r = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${FB_API_KEY}`, {
-    method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({ email, password, returnSecureToken:true })
-  });
-  const d = await r.json();
-  if (!r.ok) throw new Error(d.error?.message || 'Erro ao fazer login');
-  return d; // { idToken, localId, email }
-}
-
-// ═══════════════════════════════════════════════════
-// FIREBASE REALTIME DATABASE REST API
-// ═══════════════════════════════════════════════════
-function authParam(token) { return token ? `?auth=${token}` : ''; }
-
-async function fbGet(path, token) {
-  const r = await fetch(`${FB_DB_URL}/${path}.json${authParam(token)}`);
-  if (!r.ok) throw new Error('Erro Firebase GET');
-  return r.json();
-}
-async function fbSet(path, data, token) {
-  const r = await fetch(`${FB_DB_URL}/${path}.json${authParam(token)}`, {
-    method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data)
-  });
-  if (!r.ok) throw new Error('Erro Firebase SET');
-  return r.json();
-}
-async function fbPush(path, data, token) {
-  const r = await fetch(`${FB_DB_URL}/${path}.json${authParam(token)}`, {
-    method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data)
-  });
-  if (!r.ok) throw new Error('Erro Firebase PUSH');
-  return r.json();
-}
-async function fbUpdate(path, data, token) {
-  const r = await fetch(`${FB_DB_URL}/${path}.json${authParam(token)}`, {
-    method:'PATCH', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data)
-  });
-  if (!r.ok) throw new Error('Erro Firebase UPDATE');
-  return r.json();
-}
-async function fbDelete(path, token) {
-  await fetch(`${FB_DB_URL}/${path}.json${authParam(token)}`, { method:'DELETE' });
-}
-
-// ═══════════════════════════════════════════════════
-// API KEY SETUP
-// ═══════════════════════════════════════════════════
-function saveApiKey() { showScreen("screen-login"); return; //
-  const key = document.getElementById('apikey-input').value.trim();
-  if (key.length < 20) { alert('API Key inválida. Verifique e tente novamente.'); return; }
-  FB_API_KEY = key;
-  localStorage.setItem('fnails_api_key', key);
-  closeModal('modal-apikey');
-  showScreen('screen-login');
-}
-
-// ═══════════════════════════════════════════════════
-// LOADING / TELAS
-// ═══════════════════════════════════════════════════
-function showLoading(msg='Aguarde...') {
-  document.getElementById('loading-text').textContent = msg;
-  document.getElementById('loading-overlay').classList.add('active');
-}
-function hideLoading() { document.getElementById('loading-overlay').classList.remove('active'); }
-
-function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  if (id === 'screen-services')     { loadServicesAndRender(); initFlatpickr(); updateFABBadge(); }
-  if (id === 'screen-appointments') renderClientAppointments();
-  if (id === 'screen-admin')        { renderAdminBookings(); renderCashflow(); loadServicesAndRender(); renderAdminServicesEditor(); renderBlocks(); initBlockFlatpickr(); }
-}
-
-// ═══════════════════════════════════════════════════
-// AUTH — CLIENTES
-// ═══════════════════════════════════════════════════
-function togglePass(inputId, btn) {
-  const i = document.getElementById(inputId);
-  i.type = i.type === 'password' ? 'text' : 'password';
-  btn.textContent = i.type === 'password' ? '👁️' : '🙈';
-}
-
-function setBtn(id, loading, label) {
-  const b = document.getElementById(id);
-  b.disabled = loading;
-  b.innerHTML = loading ? `<span class="loading-spinner"></span>${label}` : label;
-}
-
-async function doLogin() {
-  const email = document.getElementById('login-email').value.trim();
-  const pass  = document.getElementById('login-pass').value;
-  const errEl = document.getElementById('login-error');
-  errEl.style.display = 'none';
-
-  if (!email || !pass) { showErr(errEl,'Preencha e-mail e senha.'); return; }
-  setBtn('btn-login', true, 'Entrando...');
-  try {
-    const auth = await fbSignIn(email, pass);
-    // Buscar perfil do usuário
-    const profile = await fbGet(`usuarios/${auth.localId}`, auth.idToken);
-    currentUser = {
-      uid: auth.localId, email: auth.email, idToken: auth.idToken,
-      name: profile?.name || email.split('@')[0],
-      phone: profile?.phone || '',
-      isAdmin: false
-    };
-    document.getElementById('header-greeting').textContent = `Olá, ${currentUser.name.split(' ')[0]}! 🌸`;
-    showScreen('screen-services');
-  } catch(e) {
-    showErr(errEl, traduzirErroAuth(e.message));
-  }
-  setBtn('btn-login', false, 'Entrar');
-}
-
-async function doRegister() {
-  const name  = document.getElementById('reg-name').value.trim();
-  const email = document.getElementById('reg-email').value.trim();
-  const phone = document.getElementById('reg-phone').value.trim();
-  const pass  = document.getElementById('reg-pass').value;
-  const errEl = document.getElementById('reg-error');
-  errEl.style.display = 'none';
-
-  if (!name)                   { showErr(errEl,'Nome é obrigatório.'); return; }
-  if (!email)                  { showErr(errEl,'E-mail é obrigatório.'); return; }
-  if (!/^\d{11}$/.test(phone)) { showErr(errEl,'Telefone deve ter exatamente 11 dígitos.'); return; }
-  if (pass.length < 8)         { showErr(errEl,'Senha deve ter mínimo 8 caracteres.'); return; }
-
-  setBtn('btn-register', true, 'Criando conta...');
-  try {
-    const auth = await fbSignUp(email, pass);
-    // Salvar perfil
-    await fbSet(`usuarios/${auth.localId}`, { name, email, phone, createdAt: new Date().toISOString() }, auth.idToken);
-    currentUser = { uid:auth.localId, email, idToken:auth.idToken, name, phone, isAdmin:false };
-    document.getElementById('header-greeting').textContent = `Olá, ${name.split(' ')[0]}! 🌸`;
-    showToast('Conta criada com sucesso! 🎉','success');
-    showScreen('screen-services');
-  } catch(e) {
-    showErr(errEl, traduzirErroAuth(e.message));
-  }
-  setBtn('btn-register', false, 'Criar Conta');
-}
-
-// ═══════════════════════════════════════════════════
-// AUTH — ADMIN
-// ═══════════════════════════════════════════════════
-async function doAdminLogin() {
-  const email = document.getElementById('admin-email').value.trim();
-  const pass  = document.getElementById('admin-pass').value;
-  const errEl = document.getElementById('admin-error');
-  errEl.style.display = 'none';
-
-  if (!email || !pass) { showErr(errEl,'Preencha e-mail e senha.'); return; }
-  setBtn('btn-admin-login', true, 'Verificando...');
-  try {
-    const auth = await fbSignIn(email, pass);
-    if (auth.email !== ADMIN_EMAIL) {
-      showErr(errEl,'Acesso negado. Este e-mail não tem permissão de administrador.');
-      setBtn('btn-admin-login', false, 'Entrar como Admin');
-      return;
-    }
-    currentUser = { uid:auth.localId, email:auth.email, idToken:auth.idToken, name:'Admin', phone:'', isAdmin:true };
-    showScreen('screen-admin');
-  } catch(e) {
-    showErr(errEl, traduzirErroAuth(e.message));
-  }
-  setBtn('btn-admin-login', false, 'Entrar como Admin');
-}
-
-function doLogout() {
-  currentUser = null; selectedDate = null; selectedTime = null;
-  if (fpInstance) { fpInstance.destroy(); fpInstance = null; }
-  document.getElementById('login-email').value = '';
-  document.getElementById('login-pass').value  = '';
-  document.getElementById('admin-email').value = '';
-  document.getElementById('admin-pass').value  = '';
-  showScreen('screen-login');
-}
-
-function showErr(el, msg) { el.textContent = msg; el.style.display = 'block'; }
-
-function traduzirErroAuth(msg) {
-  if (msg.includes('EMAIL_NOT_FOUND') || msg.includes('INVALID_LOGIN_CREDENTIALS') || msg.includes('INVALID_PASSWORD')) return 'E-mail ou senha incorretos.';
-  if (msg.includes('EMAIL_EXISTS'))    return 'Este e-mail já está cadastrado.';
-  if (msg.includes('WEAK_PASSWORD'))   return 'Senha muito fraca. Use no mínimo 8 caracteres.';
-  if (msg.includes('INVALID_EMAIL'))   return 'E-mail inválido.';
-  if (msg.includes('TOO_MANY_ATTEMPTS_TRY_LATER')) return 'Muitas tentativas. Aguarde alguns minutos.';
-  return 'Erro: ' + msg;
-}
-
-// ═══════════════════════════════════════════════════
-// SERVIÇOS — RENDER
-// ═══════════════════════════════════════════════════
-async function loadServicesAndRender() {
-  try {
-    const remote = await fbGet('services', currentUser?.idToken);
-    allServices = remote ? Object.values(remote) : DEFAULT_SERVICES;
-  } catch(e) { allServices = DEFAULT_SERVICES; }
-  renderServices();
-}
-
-function renderServices() {
-  const cats = {
-    'maos-principais':'list-maos-principais',
-    'maos-adicionais':'list-maos-adicionais',
-    'pes-principais':'list-pes-principais',
-    'pes-manutencao':'list-pes-manutencao',
-    'pes-adicionais':'list-pes-adicionais',
-  };
-  Object.entries(cats).forEach(([cat, elId]) => {
-    const el = document.getElementById(elId);
-    if (!el) return;
-    el.innerHTML = allServices.filter(s => s.category === cat).map(renderServiceItem).join('');
-  });
-  updateTotal();
-}
-
-function renderServiceItem(s) {
-  const img = s.image
-    ? `<img src="${s.image}" alt="${s.name}">`
-    : `<span>${s.emoji || '💅'}</span>`;
-  return `
-  <div class="service-item" id="item-${s.id}" onclick="toggleService('${s.id}')">
-    <div class="img-thumb">${img}</div>
-    <div class="service-info">
-      <div class="service-name">${s.name}</div>
-      <div class="service-desc">${s.desc}</div>
-      <div class="service-meta">
-        <span class="service-price">R$ ${(+s.price).toFixed(2).replace('.',',')}</span>
-        ${s.time ? `<span class="service-time">⏱ ${s.time}</span>` : ''}
-      </div>
-    </div>
-    <input type="checkbox" class="service-check" id="chk-${s.id}" aria-label="${s.name}">
-  </div>`;
-}
-
-// FIX: toggleService controlado pelo onclick do pai — checkbox só visual
-function toggleService(id) {
-  const chk  = document.getElementById('chk-'+id);
-  const item = document.getElementById('item-'+id);
-  if (!chk) return;
-  chk.checked = !chk.checked;
-  item.classList.toggle('selected', chk.checked);
-  updateTotal();
-}
-
-function getSelectedServices() {
-  return allServices.filter(s => { const c = document.getElementById('chk-'+s.id); return c && c.checked; });
-}
-
-function updateTotal() {
-  const total = getSelectedServices().reduce((s,sv) => s + (+sv.price), 0);
-  const el = document.getElementById('total-value');
-  if (el) el.textContent = `R$ ${total.toFixed(2).replace('.',',')}`;
-}
-
-// ═══════════════════════════════════════════════════
-// CALENDÁRIO / HORÁRIOS
-// ═══════════════════════════════════════════════════
-function initFlatpickr() {
-  if (fpInstance) { fpInstance.destroy(); fpInstance = null; }
-  fpInstance = flatpickr('#datepicker', {
-    locale:'pt', minDate:'today',
-    disable:[ d => d.getDay() === 0 ],
-    onChange: async (dates) => {
-      selectedDate = dates[0] ? formatDate(dates[0]) : null;
-      selectedTime = null;
-      await renderTimeSlots();
-    }
-  });
-}
-
-async function renderTimeSlots() {
-  const container = document.getElementById('time-slots');
-  if (!selectedDate) { container.innerHTML = '<p style="color:var(--gray);font-size:13px">Selecione uma data primeiro.</p>'; return; }
-
-  const dow  = new Date(selectedDate+'T12:00:00').getDay();
-  const endH = (dow >= 4 && dow <= 6) ? 16 : 18;
-  const slots = [];
-  for (let h = 8; h < endH; h += 2) slots.push(`${String(h).padStart(2,'0')}:00`);
-
-  try {
-    const [bookingsData, blocksData] = await Promise.all([
-      fbGet('agendamentos_index', currentUser?.idToken).catch(() => null),
-      fbGet('blocks', currentUser?.idToken).catch(() => null)
-    ]);
-    const bookings  = bookingsData ? Object.values(bookingsData) : [];
-    const blocks    = blocksData   ? Object.values(blocksData)   : [];
-    const booked    = bookings.filter(b => b.date === selectedDate && b.status !== 'Cancelado').map(b => b.time);
-    const blocked   = blocks.filter(b => b.date === selectedDate).map(b => b.time);
-
-    container.innerHTML = slots.map(slot => {
-      const busy = booked.includes(slot) || blocked.includes(slot);
-      return `<div class="time-slot${busy?' disabled':''}" ${busy?'':` onclick="selectTime('${slot}')"`} id="slot-${slot.replace(':','-')}">${slot}</div>`;
-    }).join('');
-  } catch(e) {
-    container.innerHTML = '<p style="color:red;font-size:13px">Erro ao carregar horários.</p>';
-  }
-}
-
-function selectTime(t) {
-  selectedTime = t;
-  document.querySelectorAll('.time-slot').forEach(el => el.classList.remove('selected'));
-  const el = document.getElementById('slot-'+t.replace(':','-'));
-  if (el) el.classList.add('selected');
-}
-
-function formatDate(d) {
-  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-}
-
-// ═══════════════════════════════════════════════════
-// AGENDAMENTO
-// ═══════════════════════════════════════════════════
-function confirmBooking() {
-  if (!getSelectedServices().length) { showToast('Selecione pelo menos um serviço! 💅','error'); return; }
-  if (!selectedDate) { showToast('Selecione uma data! 📅','error'); return; }
-  if (!selectedTime) { showToast('Selecione um horário! ⏰','error'); return; }
-  openModal('modal-policy');
-}
-
-async function finalizeBooking() {
-  closeModal('modal-policy');
-  const selected = getSelectedServices();
-  const total    = selected.reduce((s,sv) => s + (+sv.price), 0);
-
-  const booking = {
-    clientUid: currentUser.uid,
-    client:    currentUser.name,
-    phone:     currentUser.phone,
-    email:     currentUser.email,
-    services:  selected.map(s => s.name),
-    total,
-    date:      selectedDate,
-    time:      selectedTime,
-    status:    'A Confirmar',
-    createdAt: new Date().toISOString()
-  };
-
-  showLoading('Salvando agendamento...');
-  try {
-    const bookingRef = await fbPush(`agendamentos/${currentUser.uid}`, booking, currentUser.idToken);
-    await fbPush('agendamentos_index', {...booking, _ref: bookingRef.name}, currentUser.idToken);
-    hideLoading();
-  } catch(e) {
-    hideLoading();
-    showToast('Erro ao salvar. Tente novamente.','error');
-    return;
-  }
-
-  // WhatsApp
-  const [y,m,d] = selectedDate.split('-');
-  const svcList = selected.map(s => `• ${s.name} - R$${(+s.price).toFixed(2).replace('.',',')}`).join('%0A');
-  const msg = `Olá Juliana! 💅%0A%0AGostaria de agendar:%0A%0ACliente: ${encodeURIComponent(currentUser.name)}%0ATelefone: ${currentUser.phone}%0AE-mail: ${currentUser.email}%0A%0AServiços:%0A${svcList}%0A%0AData: ${d}/${m}/${y}%0AHorário: ${selectedTime}%0ATotal: R$${total.toFixed(2).replace('.',',')}%0A%0AAguardo confirmação! 🌸`;
-  window.open(`https://wa.me/5562981627242?text=${msg}`, '_blank');
-
-  showToast('Agendamento registrado! Abrindo WhatsApp... ✅','success');
-  resetBookingForm();
-  updateFABBadge();
-}
-
-function resetBookingForm() {
-  selectedDate = null; selectedTime = null;
-  document.querySelectorAll('.service-check').forEach(c => { c.checked = false; });
-  document.querySelectorAll('.service-item').forEach(i => i.classList.remove('selected'));
-  if (fpInstance) fpInstance.clear();
-  document.getElementById('time-slots').innerHTML = '';
-  updateTotal();
-}
-
-async function updateFABBadge() {
-  if (!currentUser || currentUser.isAdmin) return;
-  try {
-    const data = await fbGet(`agendamentos/${currentUser.uid}`, currentUser.idToken);
-    const count = data ? Object.keys(data).length : 0;
-    const badge = document.getElementById('fab-badge');
-    if (badge) { badge.textContent = count; badge.style.display = count > 0 ? 'flex' : 'none'; }
-  } catch(e) {}
-}
-
-// ═══════════════════════════════════════════════════
-// MEUS AGENDAMENTOS
-// ═══════════════════════════════════════════════════
-async function renderClientAppointments() {
-  if (!currentUser) return;
-  showLoading('Carregando agendamentos...');
-  try {
-    const data = await fbGet(`agendamentos/${currentUser.uid}`, currentUser.idToken);
-    hideLoading();
-    const bookings = data
-      ? Object.entries(data).map(([k,v]) => ({...v, _id:k}))
-          .sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt))
-      : [];
-
-    const tbody = document.getElementById('client-appointments-body');
-    const empty = document.getElementById('client-appointments-empty');
-
-    if (!bookings.length) { tbody.innerHTML=''; empty.style.display='block'; return; }
-    empty.style.display = 'none';
-    tbody.innerHTML = bookings.map(b => {
-      const [y,m,d] = b.date.split('-');
-      return `<tr>
-        <td>${b.services.join(', ')}</td>
-        <td><strong style="color:var(--pink)">R$${(+b.total).toFixed(2).replace('.',',')}</strong></td>
-        <td>${statusBadge(b.status)}</td>
-        <td>${d}/${m}/${y} às ${b.time}</td>
-      </tr>`;
-    }).join('');
-  } catch(e) { hideLoading(); showToast('Erro ao carregar.','error'); }
-}
-
-// ═══════════════════════════════════════════════════
-// ADMIN — AGENDAMENTOS
-// ═══════════════════════════════════════════════════
-async function renderAdminBookings() {
-  showLoading('Carregando agendamentos...');
-  try {
-    const data = await fbGet('agendamentos_index', currentUser.idToken);
-    hideLoading();
-
-    let bookings = data
-      ? Object.entries(data).map(([k,v]) => ({...v, _id:k})).sort((a,b) => new Date(b.createdAt)-new Date(a.createdAt))
-      : [];
-
-    const period = document.getElementById('filter-period').value;
-    const search = (document.getElementById('filter-search').value||'').toLowerCase();
-    const now    = new Date();
-
-    if (period === 'day') {
-      const today = formatDate(now);
-      bookings = bookings.filter(b => b.date === today);
-    } else if (period === 'week') {
-      const start = new Date(now); start.setDate(now.getDate()-now.getDay());
-      const end   = new Date(start); end.setDate(start.getDate()+6);
-      bookings = bookings.filter(b => { const d=new Date(b.date+'T12:00'); return d>=start&&d<=end; });
-    } else if (period === 'month') {
-      bookings = bookings.filter(b => { const d=new Date(b.date+'T12:00'); return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear(); });
-    }
-    if (search) bookings = bookings.filter(b => b.client.toLowerCase().includes(search));
-
-    const tbody = document.getElementById('admin-bookings-body');
-    const empty = document.getElementById('admin-bookings-empty');
-
-    if (!bookings.length) { tbody.innerHTML=''; empty.style.display='block'; return; }
-    empty.style.display = 'none';
-
-    tbody.innerHTML = bookings.map((b,i) => {
-      const [y,m,d] = b.date.split('-');
-      return `<tr>
-        <td style="font-size:12px;color:var(--gray)">${i+1}</td>
-        <td><strong>${b.client}</strong></td>
-        <td>${b.phone||'—'}</td>
-        <td style="max-width:180px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${b.services.join(', ')}">${b.services.join(', ')}</td>
-        <td style="white-space:nowrap">${d}/${m}/${y} ${b.time}</td>
-        <td><strong style="color:var(--pink)">R$${(+b.total).toFixed(2).replace('.',',')}</strong></td>
-        <td>${statusBadge(b.status)}</td>
-        <td>
-          <div style="display:flex;gap:5px;flex-wrap:wrap">
-            ${b.status!=='Confirmado'  ? `<button class="action-btn action-confirmar"  onclick="updateStatus('${b._id}','Confirmado')">✓ Confirmar</button>`  : ''}
-            ${b.status!=='Cancelado'   ? `<button class="action-btn action-cancelar"   onclick="updateStatus('${b._id}','Cancelado')">✕ Cancelar</button>`    : ''}
-            ${b.status!=='Remarcado'   ? `<button class="action-btn action-remarcado"  onclick="updateStatus('${b._id}','Remarcado')">↺ Remarcar</button>`    : ''}
+        </button>
+        <div class="accordion-body" id="body-f1">
+          <div class="sub-label">Aplicações</div>
+          <div class="variant-item" onclick="toggleV(this,'F1 — Aplicação + Decorações Básicas',130,'body-f1','badge-f1')">
+            <div class="v-check">✓</div>
+            <div class="v-info">
+              <div class="v-name">Aplicação + Decorações Básicas</div>
+              <div class="v-manu">Manutenção: R$ 90 · 15 a 30 dias</div>
+            </div>
+            <div class="v-price">R$ 130</div>
           </div>
-        </td>
-      </tr>`;
-    }).join('');
-  } catch(e) { hideLoading(); showToast('Erro ao carregar.','error'); }
-}
-
-async function updateStatus(id, status) {
-  showLoading('Atualizando...');
-  try {
-    await fbUpdate(`agendamentos_index/${id}`, { status }, currentUser.idToken);
-    hideLoading();
-    showToast(`Status: ${status}`, 'success');
-    renderAdminBookings();
-    renderCashflow();
-  } catch(e) { hideLoading(); showToast('Erro ao atualizar.','error'); }
-}
-
-function statusBadge(s) {
-  const map = {
-    'A Confirmar':'badge-orange',
-    'Confirmado':'badge-green',
-    'Cancelado':'badge-red',
-    'Remarcado':'badge-purple'
-  };
-  return `<span class="badge ${map[s]||'badge-orange'}">${s}</span>`;
-}
-
-// ═══════════════════════════════════════════════════
-// ADMIN — FLUXO DE CAIXA
-// ═══════════════════════════════════════════════════
-async function renderCashflow() {
-  try {
-    const data = await fbGet('agendamentos_index', currentUser.idToken);
-    const bookings = data ? Object.values(data) : [];
-    const confirmed  = bookings.filter(b => b.status==='Confirmado');
-    const pending    = bookings.filter(b => b.status==='A Confirmar');
-    const cancelled  = bookings.filter(b => b.status==='Cancelado');
-    const remarcados = bookings.filter(b => b.status==='Remarcado');
-    const totalRec   = confirmed.reduce((s,b) => s+(+b.total),0);
-    const totalPend  = pending.reduce((s,b) => s+(+b.total),0);
-
-    document.getElementById('cashflow-stats').innerHTML = `
-      <div class="stat-card"><div class="stat-value">R$${totalRec.toFixed(2).replace('.',',')}</div><div class="stat-label">Total Confirmado</div></div>
-      <div class="stat-card" style="border-top-color:#f39c12"><div class="stat-value" style="color:#f39c12">R$${totalPend.toFixed(2).replace('.',',')}</div><div class="stat-label">Total Pendente</div></div>
-      <div class="stat-card" style="border-top-color:#28a745"><div class="stat-value" style="color:#28a745">${confirmed.length}</div><div class="stat-label">Confirmados</div></div>
-      <div class="stat-card" style="border-top-color:#6f42c1"><div class="stat-value" style="color:#6f42c1">${remarcados.length}</div><div class="stat-label">Remarcados</div></div>
-      <div class="stat-card" style="border-top-color:#dc3545"><div class="stat-value" style="color:#dc3545">${cancelled.length}</div><div class="stat-label">Cancelados</div></div>
-      <div class="stat-card" style="border-top-color:#6c757d"><div class="stat-value" style="color:#6c757d">${bookings.length}</div><div class="stat-label">Total Geral</div></div>`;
-  } catch(e) {}
-}
-
-// ═══════════════════════════════════════════════════
-// ADMIN — EDITOR DE SERVIÇOS
-// ═══════════════════════════════════════════════════
-const CAT_LABELS = {
-  'maos-principais':'🤝 Mãos — Principais',
-  'maos-adicionais':'🤝 Mãos — Adicionais',
-  'pes-principais': '🦶 Pés — Principais',
-  'pes-manutencao': '🦶 Pés — Manutenção',
-  'pes-adicionais': '🦶 Pés — Adicionais',
-};
-
-async function renderAdminServicesEditor() {
-  try {
-    const remote = await fbGet('services', currentUser.idToken);
-    allServices = remote ? Object.values(remote) : DEFAULT_SERVICES;
-  } catch(e) {}
-
-  let html = '';
-  Object.entries(CAT_LABELS).forEach(([cat, label]) => {
-    const items = allServices.filter(s => s.category === cat);
-    html += `<div class="section-title" style="margin-top:20px">${label}</div>`;
-    items.forEach(s => { html += renderEditorItem(s); });
-    html += `<button class="btn-small btn-add" style="margin-bottom:12px" onclick="addService('${cat}')">+ Adicionar Serviço</button>`;
-  });
-  document.getElementById('admin-services-editor').innerHTML = html;
-}
-
-function renderEditorItem(s) {
-  const img = s.image ? `<img src="${s.image}" alt="${s.name}">` : `<span style="font-size:26px">${s.emoji||'💅'}</span>`;
-  return `
-  <div class="service-editor-item" id="editor-${s.id}">
-    <div class="service-editor-img" onclick="triggerImgUpload('${s.id}')" title="Clique para trocar">
-      <span id="img-preview-${s.id}">${img}</span>
-      <input type="file" id="file-${s.id}" accept="image/*" style="display:none" onchange="handleImgUpload('${s.id}',this)">
-    </div>
-    <div class="service-editor-fields">
-      <input class="editor-input" id="ename-${s.id}"  value="${s.name}"       placeholder="Nome">
-      <input class="editor-input" id="edesc-${s.id}"  value="${s.desc}"       placeholder="Descrição">
-      <div class="editor-row">
-        <input class="editor-input" id="eprice-${s.id}" value="${s.price}" placeholder="Preço"  type="number" style="flex:1">
-        <input class="editor-input" id="etime-${s.id}"  value="${s.time||''}" placeholder="Tempo" style="flex:1">
-        <input class="editor-input" id="eemoji-${s.id}" value="${s.emoji||''}" placeholder="Emoji" style="flex:.5;text-align:center">
-      </div>
-    </div>
-    <div class="editor-actions" style="display:flex;flex-direction:column;gap:6px">
-      <button class="btn-small btn-save"   onclick="saveServiceEdit('${s.id}')">💾</button>
-      <button class="btn-small btn-delete" onclick="deleteService('${s.id}')">🗑️</button>
-    </div>
-  </div>`;
-}
-
-function triggerImgUpload(id) { document.getElementById('file-'+id).click(); }
-
-function handleImgUpload(id, input) {
-  if (!input.files||!input.files[0]) return;
-  const reader = new FileReader();
-  reader.onload = async e => {
-    try {
-      await fbUpdate(`services/${id}`, { image: e.target.result }, currentUser.idToken);
-      document.getElementById('img-preview-'+id).innerHTML = `<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover">`;
-      showToast('Imagem atualizada! 🖼️','success');
-    } catch(err) { showToast('Erro ao salvar imagem.','error'); }
-  };
-  reader.readAsDataURL(input.files[0]);
-}
-
-async function saveServiceEdit(id) {
-  const s = {
-    name:  document.getElementById('ename-'+id).value,
-    desc:  document.getElementById('edesc-'+id).value,
-    price: parseFloat(document.getElementById('eprice-'+id).value)||0,
-    time:  document.getElementById('etime-'+id).value,
-    emoji: document.getElementById('eemoji-'+id).value,
-  };
-  showLoading('Salvando...');
-  try {
-    await fbUpdate(`services/${id}`, s, currentUser.idToken);
-    hideLoading();
-    showToast('Serviço salvo! ✅','success');
-  } catch(e) { hideLoading(); showToast('Erro ao salvar.','error'); }
-}
-
-async function deleteService(id) {
-  if (!confirm('Excluir este serviço?')) return;
-  showLoading('Excluindo...');
-  try {
-    await fbDelete(`services/${id}`, currentUser.idToken);
-    hideLoading();
-    showToast('Serviço excluído.','success');
-    renderAdminServicesEditor();
-  } catch(e) { hideLoading(); showToast('Erro.','error'); }
-}
-
-async function addService(category) {
-  const id   = 'svc'+Date.now();
-  const newS = { id, category, name:'Novo Serviço', desc:'Descrição', price:0, time:'', emoji:'💅' };
-  showLoading('Adicionando...');
-  try {
-    await fbSet(`services/${id}`, newS, currentUser.idToken);
-    hideLoading();
-    renderAdminServicesEditor();
-    setTimeout(() => { const el=document.getElementById('editor-'+id); if(el) el.scrollIntoView({behavior:'smooth',block:'center'}); }, 300);
-  } catch(e) { hideLoading(); showToast('Erro.','error'); }
-}
-
-// ═══════════════════════════════════════════════════
-// ADMIN — TABS
-// ═══════════════════════════════════════════════════
-function switchAdminTab(id, btn) {
-  document.querySelectorAll('.admin-panel').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  btn.classList.add('active');
-  if (id==='tab-bookings') renderAdminBookings();
-  if (id==='tab-cashflow') renderCashflow();
-  if (id==='tab-services') renderAdminServicesEditor();
-  if (id==='tab-blocks')   { renderBlocks(); initBlockFlatpickr(); }
-}
-
-// ═══════════════════════════════════════════════════
-// ADMIN — BLOQUEIOS
-// ═══════════════════════════════════════════════════
-function initBlockFlatpickr() {
-  if (fpBlock) { fpBlock.destroy(); fpBlock = null; }
-  fpBlock = flatpickr('#block-datepicker', {
-    locale:'pt', minDate:'today',
-    disable:[ d => d.getDay()===0 ]
-  });
-}
-
-async function addBlock() {
-  if (!fpBlock||!fpBlock.selectedDates[0]) { showToast('Selecione uma data!','error'); return; }
-  const time = document.getElementById('block-time').value.trim();
-  if (!time) { showToast('Informe o horário!','error'); return; }
-  const date = formatDate(fpBlock.selectedDates[0]);
-
-  showLoading('Bloqueando...');
-  try {
-    await fbPush('blocks', { date, time }, currentUser.idToken);
-    hideLoading();
-    fpBlock.clear();
-    document.getElementById('block-time').value = '';
-    showToast('Horário bloqueado! 🔒','success');
-    renderBlocks();
-  } catch(e) { hideLoading(); showToast('Erro.','error'); }
-}
-
-async function renderBlocks() {
-  try {
-    const data = await fbGet('blocks', currentUser.idToken);
-    const container = document.getElementById('blocked-list');
-    if (!container) return;
-    if (!data||!Object.keys(data).length) {
-      container.innerHTML='<p style="color:var(--gray);font-size:13px;margin-top:10px">Nenhum horário bloqueado.</p>'; return;
-    }
-    container.innerHTML = Object.entries(data).map(([k,b]) => {
-      const [y,m,d] = b.date.split('-');
-      return `<div class="blocked-tag">🔒 ${d}/${m}/${y} às ${b.time} <button onclick="removeBlock('${k}')">✕</button></div>`;
-    }).join('');
-  } catch(e) {}
-}
-
-async function removeBlock(key) {
-  showLoading('Liberando...');
-  try {
-    await fbDelete(`blocks/${key}`, currentUser.idToken);
-    hideLoading();
-    showToast('Horário liberado! ✅','success');
-    renderBlocks();
-  } catch(e) { hideLoading(); showToast('Erro.','error'); }
-}
-
-// ═══════════════════════════════════════════════════
-// MODAL / TOAST
-// ═══════════════════════════════════════════════════
-function openModal(id)  { document.getElementById(id).classList.add('active'); }
-function closeModal(id) { document.getElementById(id).classList.remove('active'); }
-
-function showToast(msg, type='') {
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.className = 'toast show ' + type;
-  setTimeout(() => { t.className = 'toast'; }, 3200);
-}
-
-// ═══════════════════════════════════════════════════
-// KEYBOARD SHORTCUTS
-// ═══════════════════════════════════════════════════
-document.getElementById('login-pass').addEventListener('keydown', e  => { if(e.key==='Enter') doLogin(); });
-document.getElementById('reg-pass').addEventListener('keydown', e    => { if(e.key==='Enter') doRegister(); });
-document.getElementById('admin-pass').addEventListener('keydown', e  => { if(e.key==='Enter') doAdminLogin(); });
-document.getElementById('apikey-input').addEventListener('keydown', e => { if(e.key==='Enter') saveApiKey(); });
-
-// ═══════════════════════════════════════════════════
-// STARTUP
-// ═══════════════════════════════════════════════════
-if (false) {
-  openModal('modal-apikey');
-} else {
-  showScreen('screen-login');
-}
-</script>
-</body>
-</html>
+          <div class="variant-item" onclick="toggleV(this,'F1 — Aplicação + Esmaltação em Gel',120,'body-f1','badge-f1')">
+            <div class="v-check">✓</div>
+            <div class="v-info">
+              <div class="v-name">Aplicação + Esmaltação em Gel</div>
+              <div class="v-manu">Manutenção: R$ 80 · 15 a 30 dias</div>
+            </div>
+            <div class="v-price">R$ 120</div>
+          </div>
+          <div class="variant-item" onclick="toggleV(this,'F1 — Aplicação + Nail Art 3D',145,'body-f1','badge-f1')">
+            <div class="v-check">✓</div>
+            <div class="v-info">
+              <div class="v-name">Aplicação + Nail Art 3D</div>
+              <div class="v-manu">Manutenção: R$ 105 · 15 a 30 dias</div>
+            <
